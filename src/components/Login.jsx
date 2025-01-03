@@ -21,7 +21,7 @@ const Login = () => {
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
   };
-  console.log("HIi");
+  // console.log("HIi");
   const handleButtonClick = () => {
     // Validate the form data
     // console.log(email.current.value);

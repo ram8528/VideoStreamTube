@@ -3,14 +3,18 @@ import Header from "./Header.jsx";
 import { checkValidData } from "../utils/validate.jsx";
 import { useRef } from "react";
 // import bgImage from '../assets/bg.jpg';
-// import {createUserWithEmailAndPassword} from "firebase/auth";
-// import { auth } from "../utils/firebase.jsx";
+import {
+  createUserWithEmailAndPassword,
+  getAuth,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import { auth } from "../utils/firebase.jsx";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
-  const [errorMessage,setErrorMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
-//   const name = useRef(null);
+  //   const name = useRef(null);
   const email = useRef(null); // create a refernce to email and password
   const password = useRef(null);
 
@@ -25,23 +29,43 @@ const Login = () => {
     const message = checkValidData(email.current.value, password.current.value);
     setErrorMessage(message);
 
-    if(message) return;
+    if (message) return;
 
     // Sign in / Sign Up Logic
-    if(!isSignInForm){
-        // Sign Up Logic
-        createUserWithEmailAndPassword(auth,email,password).then((userCredential) => {
-            const user = userCredential.user;
-            console.log(user);
+    if (!isSignInForm) {
+      // Sign Up Logic
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          const user = userCredential.user;
+          console.log(user);
         })
         .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            setErrorMessage(errorCode+" - "+errorMessage);
-        }) 
-    }
-    else {
-        // Sign In logic
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " - " + errorMessage);
+        });
+    } else {
+      // Sign In logic
+      const auth = getAuth();
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          console.log(user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode + " - " + errorMessage);
+        });
     }
   };
   return (
@@ -64,7 +88,7 @@ const Login = () => {
           {!isSignInForm && (
             <input
               type="text"
-              placeholder="Full name" 
+              placeholder="Full name"
               className="p-4 my-4 w-full bg-gray-800 rounded-lg"
               required
             />
@@ -81,7 +105,7 @@ const Login = () => {
             placeholder="Password"
             className="p-4 my-4 w-full bg-gray-800 rounded-lg"
           />
-        <p className="text-red-600 font-bold ">{errorMessage}</p>
+          <p className="text-red-600 font-bold ">{errorMessage}</p>
 
           <button
             className="p-4 my-6 bg-red-700 w-full rounded-lg"

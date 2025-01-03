@@ -10,14 +10,13 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../utils/firebase.jsx";
-import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUser } from "../utils/userSlice.jsx";
+import { head, icon } from "../utils/constants.jsx";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const name = useRef(null);
@@ -48,11 +47,10 @@ const Login = () => {
             const user = userCredential.user;
             updateProfile(user, {
               displayName: name.current.value, // Safely use name.current.value
-              photoURL:
-                "https://img.freepik.com/free-vector/cute-man-working-laptop-cartoon-vector-icon-illustration-people-technology-icon-concept-isolated_138676-9123.jpg?ga=GA1.1.1587577946.1735911775&semt=ais_hybrid",
+              photoURL: icon,
             })
               .then(() => {
-                navigate("/browse");
+                // navigate("/browse");
               })
               .then(() => {
                 const { uid, email, displayName, photoURL } = auth.currentUser;
@@ -86,7 +84,6 @@ const Login = () => {
       )
         .then((userCredential) => {
           const user = userCredential.user;
-          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -101,7 +98,7 @@ const Login = () => {
       <Header />
       <div className="absolute">
         <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/2f5a878d-bbce-451b-836a-398227a34fbf/web/IN-en-20241230-TRIFECTA-perspective_5ab944a5-1a71-4f6d-b341-8699d0491edd_small.jpg"
+          src= {head}
           alt="logo"
         />
       </div>

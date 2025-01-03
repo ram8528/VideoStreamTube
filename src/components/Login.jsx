@@ -7,25 +7,28 @@ import {
   createUserWithEmailAndPassword,
   getAuth,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../utils/firebase.jsx";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice.jsx";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  //   const name = useRef(null);
+  const name = useRef(null);
   const email = useRef(null); // create a refernce to email and password
   const password = useRef(null);
 
   const toggleSignInForm = () => {
     setIsSignInForm(!isSignInForm);
   };
-  // console.log("HIi");
   const handleButtonClick = () => {
     // Validate the form data
-    // console.log(email.current.value);
-    // console.log(password.current.value);
     const message = checkValidData(email.current.value, password.current.value);
     setErrorMessage(message);
 
@@ -34,32 +37,53 @@ const Login = () => {
     // Sign in / Sign Up Logic
     if (!isSignInForm) {
       // Sign Up Logic
-      createUserWithEmailAndPassword(
-        auth,
-        email.current.value,
-        password.current.value
-      )
-        .then((userCredential) => {
-          const user = userCredential.user;
-          console.log(user);
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setErrorMessage(errorCode + " - " + errorMessage);
-        });
+      if (name.current) {
+        // Ensure name is not null
+        createUserWithEmailAndPassword(
+          auth,
+          email.current.value,
+          password.current.value
+        )
+          .then((userCredential) => {
+            const user = userCredential.user;
+            updateProfile(user, {
+              displayName: name.current.value, // Safely use name.current.value
+              photoURL:
+                "https://img.freepik.com/free-vector/cute-man-working-laptop-cartoon-vector-icon-illustration-people-technology-icon-concept-isolated_138676-9123.jpg?ga=GA1.1.1587577946.1735911775&semt=ais_hybrid",
+            })
+              .then(() => {
+                const { uid, email, displayName, photoURL } = auth.currentUser;
+                dispatch(
+                  addUser({
+                    uid: uid,
+                    email: email,
+                    displayName: displayName,
+                    photoURL: photoURL,
+                  })
+                );
+              })
+              .catch((error) => {
+                setErrorMessage(error.message);
+              });
+          })
+          .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            setErrorMessage(errorCode + "-" + errorMessage);
+          });
+      } else {
+        setErrorMessage("Name is required.");
+      }
     } else {
       // Sign In logic
-      const auth = getAuth();
       signInWithEmailAndPassword(
         auth,
         email.current.value,
         password.current.value
       )
         .then((userCredential) => {
-          // Signed in
           const user = userCredential.user;
-          console.log(user);
+          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -68,6 +92,7 @@ const Login = () => {
         });
     }
   };
+
   return (
     <div>
       <Header />
@@ -87,6 +112,7 @@ const Login = () => {
           </h1>
           {!isSignInForm && (
             <input
+              ref={name}
               type="text"
               placeholder="Full name"
               className="p-4 my-4 w-full bg-gray-800 rounded-lg"

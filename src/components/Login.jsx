@@ -52,6 +52,9 @@ const Login = () => {
                 "https://img.freepik.com/free-vector/cute-man-working-laptop-cartoon-vector-icon-illustration-people-technology-icon-concept-isolated_138676-9123.jpg?ga=GA1.1.1587577946.1735911775&semt=ais_hybrid",
             })
               .then(() => {
+                navigate("/browse");
+              })
+              .then(() => {
                 const { uid, email, displayName, photoURL } = auth.currentUser;
                 dispatch(
                   addUser({
